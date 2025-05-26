@@ -3,9 +3,6 @@ FROM python:3.11-slim
 # Crea la directory di lavoro
 WORKDIR /app
 
-# Copy all files into app
-COPY . /app
-
 # Installa git, clona la repo e rimuovi git per alleggerire
 RUN apt-get update && \
     apt-get install -y git && \

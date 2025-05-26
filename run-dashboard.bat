@@ -10,12 +10,12 @@ set ROOT_DIR=C:\Unplanned_Events_and_Delays_in_Public_Transport
 set REPO_NAME=Unplanned_Events_and_Delays_in_Public_Transport
 set REPO_URL=https://%GITHUB_USER%:%GITHUB_TOKEN%@github.com/%GITHUB_USER%/%REPO_NAME%.git
 set DOCKERFILE_URL=https://raw.githubusercontent.com/%GITHUB_USER%/%REPO_NAME%/main/Dockerfile
-set REQFILE_URL=https://raw.githubusercontent.com/%GITHUB_USER%/%REPO_NAME%/main/arequirements
+set REQFILE_URL=https://raw.githubusercontent.com/%GITHUB_USER%/%REPO_NAME%/main/requirements
 
 set DOCKERFILE=%ROOT_DIR%\Dockerfile
 set DOCKERFILE_TEMP=%ROOT_DIR%\Dockerfile.temp
-set REQFILE=%ROOT_DIR%\arequirements
-set REQFILE_TEMP=%ROOT_DIR%\arequirements.temp
+set REQFILE=%ROOT_DIR%\requirements
+set REQFILE_TEMP=%ROOT_DIR%\requirements.temp
 
 rem === Step 1: Create root folder if needed ===
 if not exist "%ROOT_DIR%" (
@@ -27,8 +27,8 @@ echo Starting Docker Desktop...
 start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
 timeout /t 10 >nul
 
-rem === Step 3: Download Dockerfile and arequirements with token ===
-echo Checking for updated Dockerfile and arequirements...
+rem === Step 3: Download Dockerfile and requirements with token ===
+echo Checking for updated Dockerfile and requirements...
 
 powershell -Command "(New-Object Net.WebClient).Headers.Add('Authorization', 'token %GITHUB_TOKEN%'); (New-Object Net.WebClient).DownloadFile('%DOCKERFILE_URL%', '%DOCKERFILE_TEMP%')"
 powershell -Command "(New-Object Net.WebClient).Headers.Add('Authorization', 'token %GITHUB_TOKEN%'); (New-Object Net.WebClient).DownloadFile('%REQFILE_URL%', '%REQFILE_TEMP%')"
@@ -45,12 +45,12 @@ if %errorlevel%==0 (
 
 fc /b "%REQFILE%" "%REQFILE_TEMP%" >nul 2>&1
 if %errorlevel%==0 (
-    echo arequirements is up to date.
+    echo requirements is up to date.
     del "%REQFILE_TEMP%"
 ) else (
-    echo Updating arequirements...
+    echo Updating requirements...
     del "%REQFILE%"
-    ren "%REQFILE_TEMP%" arequirements
+    ren "%REQFILE_TEMP%" requirements
 )
 
 rem === Step 4: Clone the repo with token if not already cloned ===
