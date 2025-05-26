@@ -13,7 +13,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Installa le dipendenze
-RUN pip install --no-cache-dir -r requirements.bak
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Espone la porta per Shiny
 EXPOSE 8000
