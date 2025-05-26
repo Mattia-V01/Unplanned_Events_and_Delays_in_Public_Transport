@@ -6,7 +6,10 @@ WORKDIR /app
 # Installa git, clona la repo e rimuovi git per alleggerire
 RUN apt-get update && \
     apt-get install -y git && \
-    git clone https://github.com/Mattia-V01/Unplanned_Events_and_Delays_in_Public_Transport.git 
+    git clone https://github.com/Mattia-V01/Unplanned_Events_and_Delays_in_Public_Transport.git && \
+    mv Unplanned_Events_and_Delays_in_Public_Transport/* . && \
+    mv Unplanned_Events_and_Delays_in_Public_Transport/.* . 2>/dev/null || true && \
+    rmdir Unplanned_Events_and_Delays_in_Public_Transport
 
 # Installa le dipendenze
 RUN pip install --no-cache-dir -r requirements.txt
