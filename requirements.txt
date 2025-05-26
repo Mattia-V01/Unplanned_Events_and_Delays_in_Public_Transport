@@ -134,7 +134,7 @@ sniffio==1.3.1
 soupsieve==2.7
 stack-data==0.6.3
 starlette==0.46.2
-supy==2022.4.7
+supy
 sympy==1.14.0
 target-py==0.1.1
 toolz==1.0.0
