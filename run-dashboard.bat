@@ -10,7 +10,7 @@ if not exist "%ROOT_DIR%" (
 )
 
 rem Step 1: Start Docker Desktop
-start "" "C:\Program Files\Docker\Docker Desktop.exe"
+start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
 timeout /t 10 >nul
 
 rem Step 2: Download and update Dockerfile and arequirements
