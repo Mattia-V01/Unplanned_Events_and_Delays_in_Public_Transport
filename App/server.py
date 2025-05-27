@@ -363,31 +363,25 @@ def server(input, output, session):
         from collections import Counter
         import numpy as np
 
-        # Get all features from the cache
         features_arr = data_cache.get().get("features_arr", [])
         features_dep = data_cache.get().get("features_dep", [])
 
-        # Read current UI input values
         window_index = input.time_window() - 1
         show_arr = input.show_arrivals()
         show_dep = input.show_departures()
 
-        # This list will hold valid delay values (only from visible-like data)
         true_delays = []
 
-        # Collect valid delays for arrivals
         if show_arr:
             for f in features_arr:
                 v = f["properties"].get("v", [])
                 if 0 <= window_index < len(v):
                     entry = v[window_index]
                     d = entry.get("d", None)
-                    n = entry.get("n", entry.get("c", None))  # Number of vehicles
-                    # Only include delay if number of vehicles is > 0
+                    n = entry.get("n", entry.get("c", None))
                     if d is not None and n and n > 0:
                         true_delays.append(d)
 
-        # Collect valid delays for departures
         if show_dep:
             for f in features_dep:
                 v = f["properties"].get("v", [])
@@ -398,10 +392,7 @@ def server(input, output, session):
                     if d is not None and n and n > 0:
                         true_delays.append(d)
 
-        # Get all markers rendered for the current time window
         marker_groups = current_markers()
-
-        # Flatten all CircleMarker layers into a list
         all_markers = []
 
         def extract_markers(layer):
@@ -414,10 +405,8 @@ def server(input, output, session):
         for group in marker_groups:
             extract_markers(group)
 
-        # Count how many markers belong to each delay class index
         class_counts = Counter(marker.options.get('class') for marker in all_markers)
 
-        # Prepare data for the horizontal bar chart
         labels, values, color_list = [], [], []
         for i in range(len(delay_bins) - 1):
             lower = delay_bins[i]
@@ -425,7 +414,6 @@ def server(input, output, session):
             color = colors[i]
             count = class_counts.get(i, 0)
 
-            # Build human-readable label for each delay bin
             if lower == -float("inf"):
                 label = "< -300s"
             elif upper == 0:
@@ -439,7 +427,6 @@ def server(input, output, session):
             values.append(count)
             color_list.append(color)
 
-        # Create horizontal bar chart using Matplotlib
         fig, ax = plt.subplots(figsize=(6, 8))
         y_positions = range(len(labels))
         bars = ax.barh(y_positions, values, color=color_list)
@@ -449,33 +436,41 @@ def server(input, output, session):
         ax.set_xlabel("Number of Markers", fontsize=11)
         ax.set_title("Delay Distribution", fontsize=13, weight='bold')
 
-        # Label each bar with the count
         for bar in bars:
             width = bar.get_width()
             y = bar.get_y() + bar.get_height() / 2
             ax.text(width + 0.5, y, str(int(width)), va='center', fontsize=9)
 
-        # Hide plot borders for cleaner look
         for spine in ['top', 'right', 'left', 'bottom']:
             ax.spines[spine].set_visible(False)
 
         ax.xaxis.grid(True, linestyle='--', alpha=0.5)
         ax.set_axisbelow(True)
 
-        # Annotate the 5th and 95th percentiles of the actual delay values
+        # === Show stddev annotations with percentage coverage ===
         if true_delays:
-            p5 = np.percentile(true_delays, 5)
-            p95 = np.percentile(true_delays, 95)
-            ax.text(
-                0.98, 0.98,
-                f"90% of data are beetwin {p5:.1f}s and {p95:.1f}s",
-                transform=ax.transAxes,
-                fontsize=9,
-                color="black",
-                ha="right",
-                va="top",
-                bbox=dict(facecolor='white', edgecolor='gray', boxstyle='round,pad=0.3')
-            )
+            mu = np.mean(true_delays)
+            sigma = np.std(true_delays)
+
+            info_lines = [
+                (1, 68.27),
+                (2, 95.45),
+                (3, 99.73)
+            ]
+
+            for i, percent in info_lines:
+                lower = mu - i * sigma
+                upper = mu + i * sigma
+                ax.text(
+                    0.98, 0.98 - 0.05 * i,
+                    f"±{i}σ ≈ [{lower:.1f}s – {upper:.1f}s] → {percent:.2f}%",
+                    transform=ax.transAxes,
+                    fontsize=9,
+                    color="black",
+                    ha="right",
+                    va="top",
+                    bbox=dict(facecolor='white', edgecolor='gray', boxstyle='round,pad=0.3')
+                )
 
         try:
             plt.tight_layout()
