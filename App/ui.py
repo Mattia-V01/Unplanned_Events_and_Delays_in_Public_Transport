@@ -18,6 +18,7 @@ ui = ui.page_sidebar(
 
             # Plot for selected situation
             ui.output_ui("situation_delay_plot_box"),
+            style="width: 100%"
         ),
         position="right",
         open="closed",
