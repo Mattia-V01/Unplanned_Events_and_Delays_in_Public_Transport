@@ -230,8 +230,8 @@ def server(input, output, session):
                     time(hour=start_seconds // 3600, minute=(start_seconds % 3600) // 60)
                 )
 
-                sqlite_path = "C:/Tesi/DB/situations_sirisx.sqlite"
-                csv_mapping_path = "C:/Tesi/Data/actual_date-swiss-only-service_point-2025-05-20.csv"
+                sqlite_path = "./DB/situations_sirisx.sqlite"
+                csv_mapping_path = "./Data/actual_date-swiss-only-service_point-2025-05-20.csv"
 
                 logger.info(f"Loading situations for datetime: {selected_time}")
                 situations = load_situations_for_datetime(sqlite_path, csv_mapping_path, selected_time, language="de")
@@ -722,8 +722,8 @@ def server(input, output, session):
         language = input.selected_language()
 
         try:
-            sqlite_path = "C:/Tesi/DB/situations_sirisx.sqlite"
-            csv_mapping_path = "C:/Tesi/Data/actual_date-swiss-only-service_point-2025-05-20.csv"
+            sqlite_path = "./DB/situations_sirisx.sqlite"
+            csv_mapping_path = "./Data/actual_date-swiss-only-service_point-2025-05-20.csv"
             logger.info(f"Looking for situation ID: {situation_id}")
             df = load_situations_for_datetime(sqlite_path, csv_mapping_path, selected_time, language)
             df["SituationID"] = df["SituationID"].astype(str)

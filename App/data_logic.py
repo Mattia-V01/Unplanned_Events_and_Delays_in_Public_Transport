@@ -16,8 +16,8 @@ from folium import CircleMarker, FeatureGroup
 # This function loads GeoJSON features from compressed arrival and departure files
 # depending on selected date range and which types (arrivals/departures) to include.
 def load_geojson_for_selection(date_from, date_to, show_arrivals=True, show_departures=True):
-    folder_path_arrival = r"C:/Tesi/Data/Delays/Arrival"
-    folder_path_departure = r"C:/Tesi/Data/Delays/Departure"
+    folder_path_arrival = r"./Data/Delays/Arrival"
+    folder_path_departure = r"./Data/Delays/Departure"
     features = []
 
     if show_arrivals:
