@@ -349,7 +349,7 @@ def server(input, output, session):
             """
         return ui.HTML(f"""
             <div style="margin-top: 20px;">
-                <div style="font-weight: bold; font-size: 12px; margin-bottom: 8px;">Legend of delays
+                <div style="font-weight: bold; font-size: 12px; margin-bottom: 8px;">Delays classes
                 </div>
                 {legend_items}
             </div>
@@ -483,7 +483,7 @@ def server(input, output, session):
     def alert_legend():
         html = """
         <div style="margin-top: 20px;">
-            <div style="font-weight: bold; font-size: 12px; margin-bottom: 8px;">Legend of Alert Causes</div>
+            <div style="font-weight: bold; font-size: 12px; margin-bottom: 8px;">Unplanned events type</div>
             <div style="font-size: 12px;">
         """
 
@@ -727,6 +727,9 @@ def server(input, output, session):
             logger.info(f"Looking for situation ID: {situation_id}")
             df = load_situations_for_datetime(sqlite_path, csv_mapping_path, selected_time, language)
             df["SituationID"] = df["SituationID"].astype(str)
+
+            builtins.global_situation_df = df
+
             row = df[df["SituationID"] == str(situation_id)]
 
             if row.empty:
@@ -818,3 +821,166 @@ def server(input, output, session):
             return ui.tags.script("window.plotReady = true;")
         else:
             return ui.tags.script("window.plotReady = false;")
+        
+    @output
+    @render.ui
+    def situation_delay_plot_box():
+        # Check if a situation marker has been clicked
+        if not input.clicked_situation_id():
+            # If not, show nothing (empty HTML)
+            return ui.HTML("")
+
+        # If a situation is selected, render the associated plot
+        return ui.output_plot("situation_delay_trend", height="400px", fill=False)
+
+        
+    @output
+    @render.plot
+    def situation_delay_trend():
+        import matplotlib.pyplot as plt
+        from datetime import timedelta, datetime
+        import numpy as np
+        from math import radians, cos, sin, asin, sqrt
+
+        # Start logging
+        logger.info("situation_delay_trend triggered")
+
+        # Retrieve the clicked situation ID from input
+        situation_id = input.clicked_situation_id()
+        logger.info(f"[situation_delay_trend] Clicked situation ID: {situation_id}")
+
+        if not situation_id:
+            logger.warning("[situation_delay_trend] No situation ID provided")
+            return
+
+        # Retrieve the cached DataFrame containing all situations
+        situation_df = builtins.global_situation_df
+        logger.info(f"[situation_delay_trend] Loaded situation_df with {len(situation_df)} entries")
+
+        # Ensure both ID values are treated as clean strings
+        situation_df["SituationID"] = situation_df["SituationID"].astype(str).str.strip()
+        situation_id = str(situation_id).strip()
+
+        # Find the matching row in the DataFrame
+        situation = situation_df[situation_df["SituationID"] == situation_id]
+        logger.info(f"[situation_delay_trend] Matching rows for ID: {len(situation)}")
+        alert_cause = situation["AlertCause"].iloc[0] if "AlertCause" in situation else "unknown"
+        Name = situation["Name"].iloc[0] if "Name" in situation else "unknown"
+
+        if situation.empty:
+            logger.warning(f"[situation_delay_trend] No matching row found for situation_id: {situation_id}")
+            return
+
+        # Extract start and end time of the situation
+        start_time = situation["Publication_Start"].iloc[0]
+        end_time = situation["Publication_End"].iloc[0]
+        start_time = start_time.replace(tzinfo=None)
+        end_time = end_time.replace(tzinfo=None)
+
+        # Define the time window range: one hour before start and one hour after end
+        window_start = start_time - timedelta(hours=1)
+        window_end = end_time + timedelta(hours=1)
+
+        # Get the selected date from input
+        selected_date = input.selected_date()
+        date_start = datetime.combine(selected_date, datetime.min.time())
+        date_end = datetime.combine(selected_date, datetime.max.time())
+
+        # Clip the time range to remain within the selected day
+        if window_start < date_start or window_end > date_end:
+            window_start = max(window_start, date_start)
+            window_end = min(window_end, date_end)
+
+        # Convert datetime to 15-minute window index (0 to 95)
+        def get_window_index(dt):
+            return int((dt - date_start).total_seconds() // 900)
+
+        start_idx = get_window_index(window_start)
+        end_idx = get_window_index(window_end)
+
+        logger.info(f"[situation_delay_trend] Time window indices: start={start_idx}, end={end_idx}")
+
+        # Get situation coordinates (lat, lon)
+        situation_coords = situation["coords"].iloc[0]
+        if not situation_coords:
+            logger.warning("[situation_delay_trend] No coordinates found for situation")
+            return
+
+        lat0, lon0 = situation_coords
+
+        # Haversine formula to calculate distance between two geographic points
+        def haversine(lat1, lon1, lat2, lon2):
+            R = 6371  # Radius of the Earth in kilometers
+            dlat = radians(lat2 - lat1)
+            dlon = radians(lon2 - lon1)
+            a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2) ** 2
+            c = 2 * asin(sqrt(a))
+            return R * c
+
+        # Retrieve all cached delay features (arrivals and departures)
+        features_arr = data_cache.get().get("features_arr", [])
+        features_dep = data_cache.get().get("features_dep", [])
+        all_features = features_arr + features_dep
+
+        # Initialize lists for plotting
+        avg_delays = []
+        time_labels = []
+
+        # Loop over each 15-minute time window
+        for idx in range(start_idx, end_idx + 1):
+            window_time = date_start + timedelta(minutes=15 * idx)
+            delays = []
+
+            # Check each feature and include delays from nearby points
+            for feature in all_features:
+                coords = feature["geometry"]["coordinates"]
+                lat, lon = coords[1], coords[0]
+                distance = haversine(lat0, lon0, lat, lon)
+
+                if distance <= 10:  # Only include features within 10 km
+                    v = feature["properties"].get("v", [])
+                    if 0 <= idx < len(v):
+                        entry = v[idx]
+                        d = entry.get("d")
+                        n = entry.get("n", entry.get("c", 0))
+                        if d is not None and n > 0:
+                            delays.append(d)
+
+            # Compute average delay if available
+            if delays:
+                avg_delay = np.mean(delays)
+            else:
+                avg_delay = np.nan
+
+            avg_delays.append(avg_delay)
+            time_labels.append(window_time.strftime("%H:%M"))
+
+        # Log how many delay points will be plotted
+        valid_points = sum(1 for d in avg_delays if not np.isnan(d))
+        logger.info(f"[situation_delay_trend] Number of valid average delay points: {valid_points}")
+        logger.info(f"[situation_delay_trend] Plotting with {len(avg_delays)} time windows")
+
+        # Create the plot
+        fig, ax = plt.subplots(figsize=(10, 4))
+        ax.plot(time_labels, avg_delays, marker='o', linestyle='-', color="#2a6ebb", linewidth=1.8, markersize=4)
+        hourly_indices = [i for i in range(len(time_labels)) if i % 4 == 0]
+        hourly_labels = [time_labels[i] for i in hourly_indices]
+
+        ax.set_xticks(hourly_indices)
+        ax.set_xticklabels(hourly_labels, fontsize=8, rotation=90)
+        ax.set_title(
+            f"Delay trends within a 10 km radius of an unplanned event\nof type '{alert_cause}' in {Name}",
+            fontsize=11,
+            weight='bold'
+        )
+        ax.set_xlabel("Time", fontsize=9)
+        ax.set_ylabel("Average Delay (s)", fontsize=9)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.grid(axis='y', linestyle='--', alpha=0.4)
+
+        try:
+            plt.tight_layout()
+        except Exception as e:
+            logger.warning(f"[situation_delay_trend] tight_layout failed: {e}")
+

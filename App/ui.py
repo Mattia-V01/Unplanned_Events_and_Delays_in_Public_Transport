@@ -11,14 +11,13 @@ ui = ui.page_sidebar(
             style="margin-top: 15px; width: 100%; text-align: right;"
         ),
         ui.div(
-            # Export plot
+            # Plot for selected delay
             ui.output_ui("selected_point_plot_box"),
-
-            # Actual output plot below the icon
-            ui.output_plot("selected_point_timeseries", height="600px", fill=False),
-
-            # plot graph
+            #ui.output_plot("selected_point_timeseries", height="400px", fill=False),
             ui.output_ui("plot_ready_flag"),
+
+            # Plot for selected situation
+            ui.output_ui("situation_delay_plot_box"),
         ),
         position="right",
         open="closed",
@@ -169,7 +168,7 @@ ui = ui.page_sidebar(
 
     // --- Listen to messages from the map iframe and forward them to Shiny ---
     window.addEventListener("message", function(event) {
-        if (event.data && event.data.type === "delay_click") {
+         if (event.data && event.data.type === "delay_click") {
             Shiny.setInputValue("clicked_delay_id", event.data.delay_id, {priority: "event"});
             // window.selectedDelayId = event.data.delay_id;  // Keep this accessible from JS
         }
