@@ -86,7 +86,7 @@ def load_situations_for_datetime(sqlite_path, service_point_csv, selected_dateti
         (df["Publication_End"] >= selected_time)
     ].copy()
 
-    active["sloid"] = active["Publish_Affects_StopPlace_Ref"].str.extract(r"(ch:1:sloid:(\d+))")[0]
+    active["sloid"] = active["Publish_Affects_StopPlace_Ref"].str.extract(r"(ch:1:sloid:\d+)")[0]
     active["sloid"] = active["sloid"].astype(str)
     active["coords"] = active["sloid"].map(coord_map)
     active["Name"] = active["sloid"].map(name_map)
