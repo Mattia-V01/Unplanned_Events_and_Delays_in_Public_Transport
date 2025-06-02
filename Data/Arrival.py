@@ -1,4 +1,3 @@
-# Updated version of your arrivals script
 import os
 import requests
 import pandas as pd
@@ -11,7 +10,6 @@ import json
 from datetime import datetime, timedelta
 import gzip
 
-# --- Configuration ---
 BASE_PAGE_URL = 'https://data.opentransportdata.swiss/dataset/istdaten'
 BASE_DOMAIN = 'https://data.opentransportdata.swiss'
 ARCHIVE_BASE_URL = 'https://archive.opentransportdata.swiss/istdaten/2025'
@@ -117,7 +115,6 @@ def process_csv_content(filename, content, service_df, processed_files):
                 daily_files[date] = {}
 
             if bpuic not in daily_files[date]:
-                # Default to 'unknown' transport type
                 t_value = 'unknown'
                 if 'PRODUKT_ID' in group.columns:
                     values = group['PRODUKT_ID'].dropna()
@@ -128,7 +125,7 @@ def process_csv_content(filename, content, service_df, processed_files):
                     'coordinates': [east, north],
                     'n': name,
                     'id': bpuic,
-                    't': t_value,  # Include the transport type
+                    't': t_value,
                     'v': {tw: {'d': 0.0, 'c': 0} for tw in TIME_WINDOWS}
                 }
 
@@ -147,7 +144,7 @@ def process_csv_content(filename, content, service_df, processed_files):
                 "properties": {
                     "n": info['n'],
                     "id": info['id'],
-                    "t": info.get('t', 'unknown'),  # Include transport type
+                    "t": info.get('t', 'unknown'),
                     "v": values_array
                 }
             })
