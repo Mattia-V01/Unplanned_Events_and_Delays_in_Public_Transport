@@ -1,4 +1,4 @@
-# Unplanned Events and Transport Delays Dashboard
+# Unplanned Events and Delays in Public Transport
 
 This application is an interactive dashboard designed to explore and visualize unplanned events and delay patterns in public transport across Switzerland. It combines **spatial and temporal analysis** using real-world data from SIRI SX (for unplanned service disruptions) and actual delay data (aggregated per 15-minute intervals).
 
