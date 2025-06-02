@@ -24,7 +24,7 @@ C:\
 You should now have the following directory:
 
 ```
-C:\UnplannedDockerApp\UnplannedDockerApp
+C:\UnplannedDockerApp
 ```
 
 ### 2. Install Docker Desktop
@@ -37,7 +37,7 @@ C:\UnplannedDockerApp\UnplannedDockerApp
 Open Command Prompt (`cmd`) and run the following commands:
 
 ```
-cd C:\UnplannedDockerApp\UnplannedDockerApp
+cd C:\UnplannedDockerApp
 ```
 ```
 docker build --no-cache -t transport-delays .
