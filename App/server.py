@@ -16,6 +16,7 @@ matplotlib.use("Agg")
 import numpy as np
 from shiny.ui import tags
 import builtins
+import os
 
 # Global reference to background precache thread
 precache_thread = None
