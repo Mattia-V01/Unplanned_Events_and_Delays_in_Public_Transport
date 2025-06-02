@@ -66,15 +66,13 @@ ui = ui.page_sidebar(
 
             # Sidebar styling
             style="""
-                width: 250px;
+                width: 19vw;
                 float: left;
                 padding: 10px;
-                background-color: #f4f6f8;
                 border-right: 1px solid #bbb;
                 height: 100%;
                 font-family: 'Segoe UI', sans-serif;
                 font-size: 14px;
-                box-shadow: 2px 0 4px rgba(0, 0, 0, 0.01);
             """
         ),
 
@@ -82,25 +80,12 @@ ui = ui.page_sidebar(
         ui.div(
             ui.output_ui("map"),
 
-            # Hidden input to capture map zoom level (if needed later)
-            ui.div(
-                ui.input_numeric(
-                    "map_zoom_level",
-                    "Zoom Level",
-                    value=9,
-                    min=1,
-                    max=20,
-                    step=1,
-                ),
-                style="display: none;"
-            ),
-
             # Time window slider (15-minute steps)
             ui.input_slider(
                 "time_window",
-                "",             # No label
+                "",            
                 min=1,
-                max=96,         # 96 x 15min = 24h
+                max=96,       
                 value=1,
                 step=1,
                 width="100%",
@@ -111,10 +96,9 @@ ui = ui.page_sidebar(
 
             # Styling
             style="""
-                margin-left: 270px;
+                margin-left: 20vw;
                 padding: 20px;
                 background-color: white;
-                border-radius: 8px;
                 font-family: 'Segoe UI', sans-serif;
                 font-size: 14px;
             """

@@ -25,7 +25,7 @@ def render_base_map():
     m.get_root().html.add_child(folium.Element("""
         <style>
         .folium-map {
-            height: height: calc(100vh - 180px);
+            height: 60vh;
             width: 100%;
             border: 1px solid #ccc;
         }
