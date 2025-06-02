@@ -1,6 +1,13 @@
-# Unplanned Docker App
+# Unplanned Events and Transport Delays Dashboard
 
-This repository contains a Dockerized application for managing and visualizing transport delay data.
+This application is an interactive dashboard designed to explore and visualize unplanned events and delay patterns in public transport across Switzerland. It combines **spatial and temporal analysis** using real-world data from SIRI SX (for unplanned service disruptions) and actual delay data (aggregated per 15-minute intervals).
+
+Built with [Shiny for Python](https://shiny.posit.co/py/), [Folium](https://python-visualization.github.io/folium/), and [FastAPI](https://fastapi.tiangolo.com/), the app enables users to explore:
+
+- Delay intensity and variation at station-level granularity
+- The impact of specific disruption causes (e.g., accidents, maintenance)
+- Hour-by-hour evolution of delays with optional historical comparison
+- Exportable trend plots per location and unplanned event
 
 ## Installation Using Docker
 
