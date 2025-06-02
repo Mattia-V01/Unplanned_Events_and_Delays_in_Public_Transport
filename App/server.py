@@ -234,8 +234,8 @@ def server(input, output, session):
                 )
 
                 sqlite_path = "./DB/situations_sirisx.sqlite"
-                csv_mapping_path = "./Data/actual_date-swiss-only-service_point-2025-05-20.csv"
-
+                base_dir = os.path.dirname(__file__)
+                csv_mapping_path = os.path.join(base_dir, "Data", "actual_date-swiss-only-service_point-2025-05-20.csv")
                 logger.info(f"Loading situations for datetime: {selected_time}")
                 situations = load_situations_for_datetime(sqlite_path, csv_mapping_path, selected_time, language="de")
                 logger.info(f"Loaded {len(situations)} situations")
@@ -734,7 +734,8 @@ def server(input, output, session):
 
         try:
             sqlite_path = "./DB/situations_sirisx.sqlite"
-            csv_mapping_path = "./Data/actual_date-swiss-only-service_point-2025-05-20.csv"
+            base_dir = os.path.dirname(__file__)
+            csv_mapping_path = os.path.join(base_dir, "Data", "actual_date-swiss-only-service_point-2025-05-20.csv")
             logger.info(f"Looking for situation ID: {situation_id}")
             df = load_situations_for_datetime(sqlite_path, csv_mapping_path, selected_time, language)
             df["SituationID"] = df["SituationID"].astype(str)
