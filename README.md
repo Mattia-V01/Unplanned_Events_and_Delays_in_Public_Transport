@@ -56,7 +56,3 @@ C:\UnplannedDockerApp\run-dashboard.bat
 ### 5. Launch the Dashboard
 
 After the Docker build is completed, double-click `run-dashboard.bat` from your desktop to launch the application.
-
-## Support
-
-For custom map-based projects or commercial inquiries, contact me at: [your-email@example.com]
