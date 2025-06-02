@@ -78,3 +78,15 @@
 2025-05-18_istdaten.csv
 2025-05-19_istdaten.csv
 2025-05-20_istdaten.csv
+2025-05-21_istdaten.csv
+2025-05-22_istdaten.csv
+2025-05-23_istdaten.csv
+2025-05-24_istdaten.csv
+2025-05-25_istdaten.csv
+2025-05-26_istdaten.csv
+2025-05-27_istdaten.csv
+2025-05-28_istdaten.csv
+2025-05-29_istdaten.csv
+2025-05-30_istdaten.csv
+2025-05-31_istdaten.csv
+2025-06-01_istdaten.csv

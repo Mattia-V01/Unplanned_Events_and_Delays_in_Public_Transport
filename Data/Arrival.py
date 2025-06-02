@@ -15,8 +15,8 @@ import gzip
 BASE_PAGE_URL = 'https://data.opentransportdata.swiss/dataset/istdaten'
 BASE_DOMAIN = 'https://data.opentransportdata.swiss'
 ARCHIVE_BASE_URL = 'https://archive.opentransportdata.swiss/istdaten/2025'
-OUTPUT_DIR = r'C:/Tesi/Data/Delays/Arrival'
-SERVICE_POINTS_FILE = r'C:/Tesi/Data/actual_date-swiss-only-service_point-2025-05-20.csv'
+OUTPUT_DIR = r'./Data/Delays/Arrival'
+SERVICE_POINTS_FILE = r'./Data/actual_date-swiss-only-service_point-2025-05-20.csv'
 PROCESSED_LOG = os.path.join(OUTPUT_DIR, 'processed_files_arrivals.txt')
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -91,8 +91,8 @@ def process_csv_content(filename, content, service_df, processed_files):
     delimiter = detect_delimiter(content[:2000])
     header_line = content.split('\n', 1)[0]
     usecols = ['BETRIEBSTAG', 'BPUIC', 'ANKUNFTSZEIT', 'AN_PROGNOSE', 'AN_PROGNOSE_STATUS']
-    if 'PRODUCT_ID' in header_line:
-        usecols.append('PRODUCT_ID')
+    if 'PRODUKT_ID' in header_line:
+        usecols.append('PRODUKT_ID')
 
     chunk_iter = pd.read_csv(io.StringIO(content), sep=delimiter, chunksize=50000, engine='c', usecols=usecols)
     daily_files = {}
@@ -117,12 +117,21 @@ def process_csv_content(filename, content, service_df, processed_files):
                 daily_files[date] = {}
 
             if bpuic not in daily_files[date]:
+                # Default to 'unknown' transport type
+                t_value = 'unknown'
+                if 'PRODUKT_ID' in group.columns:
+                    values = group['PRODUKT_ID'].dropna()
+                    if not values.empty:
+                        t_value = values.value_counts().idxmax()
+
                 daily_files[date][bpuic] = {
                     'coordinates': [east, north],
                     'n': name,
                     'id': bpuic,
+                    't': t_value,  # Include the transport type
                     'v': {tw: {'d': 0.0, 'c': 0} for tw in TIME_WINDOWS}
                 }
+
 
             mean_delay = round(group['VERZOGERUNG'].mean(), 4) if len(group) > 1 else round(group['VERZOGERUNG'].iloc[0], 4)
             count = int(group['VERZOGERUNG'].count())
@@ -135,7 +144,12 @@ def process_csv_content(filename, content, service_df, processed_files):
             features.append({
                 "type": "Feature",
                 "geometry": {"type": "Point", "coordinates": info['coordinates']},
-                "properties": {"n": info['n'], "id": info['id'], "v": values_array}
+                "properties": {
+                    "n": info['n'],
+                    "id": info['id'],
+                    "t": info.get('t', 'unknown'),  # Include transport type
+                    "v": values_array
+                }
             })
 
         geojson_data = {"type": "FeatureCollection", "features": features}

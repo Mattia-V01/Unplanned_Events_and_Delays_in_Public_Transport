@@ -15,8 +15,8 @@ import re
 BASE_PAGE_URL = 'https://data.opentransportdata.swiss/dataset/istdaten'
 BASE_DOMAIN = 'https://data.opentransportdata.swiss'
 ARCHIVE_BASE_URL = 'https://archive.opentransportdata.swiss/actual_data_archive'
-OUTPUT_DIR = r'C:/Tesi/Data/Delays/Departure'
-SERVICE_POINTS_FILE = r'C:/Tesi/Data/actual_date-swiss-only-service_point-2025-05-20.csv'
+OUTPUT_DIR = r'./Data/Delays/Departure'
+SERVICE_POINTS_FILE = r'./Data/actual_date-swiss-only-service_point-2025-05-20.csv'
 PROCESSED_LOG = os.path.join(OUTPUT_DIR, 'processed_files.txt')
 
 # Ensure output directory exists
@@ -93,7 +93,8 @@ def adjust_forecast_time(row):
 # Helper function to process a single CSV (content already loaded) and export GeoJSON
 def process_csv_content(filename, content, service_df, processed_files):
     formatted_date = filename.split('_')[0].replace('-', '')  # e.g., '20250331' for '2025-03-31_IstDaten.csv'
-    output_geojson_path = os.path.join(OUTPUT_DIR, f"delays_dep_{formatted_date}.geojson")
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    output_geojson_path = os.path.abspath(os.path.join(OUTPUT_DIR, f"delays_dep_{formatted_date}.geojson"))
     # Skip processing if this file was already handled
     if os.path.exists(output_geojson_path) or filename in processed_files:
         print(f"Skipping {filename}")
@@ -101,17 +102,21 @@ def process_csv_content(filename, content, service_df, processed_files):
 
     # Detect delimiter from sample text
     delimiter = detect_delimiter(content[:2000])
-    # Determine if 'PRODUCT_ID' column is present in the header and set usecols accordingly
-    header_line = content.split('\n', 1)[0]
+    # Determine if 'PRODUKT_ID' column is present in the header and set usecols accordingly
+    header = pd.read_csv(io.StringIO(content), sep=delimiter, nrows=0)
     usecols = ['BETRIEBSTAG', 'BPUIC', 'ABFAHRTSZEIT', 'AB_PROGNOSE', 'AB_PROGNOSE_STATUS']
-    if 'PRODUCT_ID' in header_line:
-        usecols.append('PRODUCT_ID')
+    if 'PRODUKT_ID' in header.columns:
+        usecols.append('PRODUKT_ID')
+        print("PRODUKT_ID detected and will be used")
+    else:
+        print("PRODUKT_ID not found in columns:", header.columns.tolist())
 
     # Read the CSV content in chunks for memory efficiency
     chunk_iter = pd.read_csv(io.StringIO(content), sep=delimiter, chunksize=50000, engine='c', usecols=usecols)
     daily_files = {}
 
     for chunk in chunk_iter:
+        print("Columns in chunk:", chunk.columns.tolist())
         # Filter for real-time data only and drop rows missing required columns
         chunk = chunk[chunk['AB_PROGNOSE_STATUS'] == 'REAL'].dropna(subset=['BPUIC', 'ABFAHRTSZEIT', 'AB_PROGNOSE'])
         if chunk.empty:
@@ -141,20 +146,13 @@ def process_csv_content(filename, content, service_df, processed_files):
                 daily_files[date] = {}
             key = bpuic
             if key not in daily_files[date]:
-                # Determine transport type for this station on this date
-                if 'PRODUCT_ID' in merged.columns:
-                    station_products = merged[(merged['BETRIEBSTAG'] == date) & (merged['BPUIC'] == bpuic)]['PRODUCT_ID'].dropna().unique()
-                    if len(station_products) == 1:
-                        t_value = str(station_products[0])
-                    elif len(station_products) > 1:
-                        # Multiple product types found; default to 'unknown' (assume inconsistency)
-                        t_value = 'unknown'
-                    else:
-                        # No product information found
-                        t_value = 'unknown'
-                else:
-                    t_value = 'unknown'
-                # Initialize station entry with coordinates, name, id, transport type, and empty values for all time windows
+                # Initialize transport type to 'unknown'
+                t_value = 'unknown'
+                if 'PRODUKT_ID' in group.columns:
+                    values = group['PRODUKT_ID'].dropna()
+                    if not values.empty:
+                        t_value = values.value_counts().idxmax()
+                # Initialize station entry
                 daily_files[date][key] = {
                     'coordinates': [east, north],
                     'n': name,
