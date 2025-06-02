@@ -15,7 +15,7 @@ Follow the steps below to set up and run the application on your Windows machine
 
 ### 1. Download and Extract
 
-- Download the file `UnplannedDockerAppZip.zip`.
+- Download the file `UnplannedDockerApp.zip`.
 - Extract its content into `C:\`.
 ```
 C:\
