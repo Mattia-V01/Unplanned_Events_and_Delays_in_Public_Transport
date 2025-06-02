@@ -10,6 +10,9 @@ Follow the steps below to set up and run the application on your Windows machine
 
 - Download the file `UnplannedDockerAppZip.zip`.
 - Extract its content into `C:\`.
+  ```
+  C:\
+  ```
 
 You should now have the following directory:
 
@@ -28,6 +31,8 @@ Open Command Prompt (`cmd`) and run the following commands:
 
 ```
 cd C:\UnplannedDockerApp\UnplannedDockerApp
+```
+```
 docker build --no-cache -t transport-delays .
 ```
 
