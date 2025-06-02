@@ -1,13 +1,18 @@
-# Use a slim Python image as the base
 FROM python:3.11-slim
 
-# Set the working directory
-WORKDIR /app
-
-# Install required OS packages and clone the GitHub repo
+# Install system dependencies
 RUN apt-get update && \
     apt-get install -y git && \
-    git clone https://github.com/Mattia-V01/Unplanned_Events_and_Delays_in_Public_Transport.git .
+    apt-get clean
+
+# Set working directory
+WORKDIR /app
+
+# Clone repository
+RUN git clone https://github.com/Mattia-V01/Unplanned_Events_and_Delays_in_Public_Transport.git
+
+# Change directory to the cloned repo
+WORKDIR /app/Unplanned_Events_and_Delays_in_Public_Transport
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
