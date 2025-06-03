@@ -199,7 +199,15 @@ ui = ui.page_sidebar(
         ui.tags.div(
             ui.tags.h2("Unplanned Events and Delays in Public Transport", style="margin: 0;"),
             ui.tags.p(
-                "Spatio-temporal visualization and analysis using SIRI SX for unplanned events and Actual data for delays",
+                ui.HTML(
+                    """
+                    Spatio-temporal visualization and analysis using 
+                    <a href="https://data.opentransportdata.swiss/en/dataset/siri-sx" target="_blank" style="color: #3366cc; text-decoration: none;">SIRI SX</a>
+                    for unplanned events and 
+                    <a href="https://data.opentransportdata.swiss/en/dataset/istdaten" target="_blank" style="color: #3366cc; text-decoration: none;">Actual Data</a>
+                    for delays
+                    """
+                ),
                 style="font-size: 14px; color: #666; margin-top: 4px;"
             ),
             style="padding-right: 80px;"
