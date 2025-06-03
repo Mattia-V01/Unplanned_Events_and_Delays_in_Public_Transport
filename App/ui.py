@@ -22,7 +22,7 @@ ui = ui.page_sidebar(
         ),
         position="right",
         open="closed",
-        width="800px",
+        width="35vw",
     ),
 
     # Main layout container
