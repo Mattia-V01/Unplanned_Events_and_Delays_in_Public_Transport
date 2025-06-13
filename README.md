@@ -3,37 +3,63 @@
 This application is an interactive dashboard designed to explore and visualize unplanned events and delay patterns in public transport across Switzerland.  
 It combines spatial and temporal analysis using real-world data from SIRI SX (for unplanned service disruptions) and actual delay data (aggregated per 15-minute intervals).
 
-Built with [Shiny for Python](https://shiny.posit.co/py/), [Folium](https://python-visualization.github.io/folium/), and [FastAPI](https://fastapi.tiangolo.com/), the app enables users to explore:
+Built with [Shiny for Python](https://shiny.posit.co/py/), [Folium](https://python-visualization.github.io/folium/), and [FastAPI](https://fastapi.tiangolo.com/), the app allows users to:
 
-- Delay intensity and variation at station-level granularity
-- The impact of specific disruption causes (e.g., accidents, maintenance)
-- Hour-by-hour evolution of delays with optional historical comparison
-- Exportable trend plots per location and unplanned event
+- Analyze delays at station level
+- Explore causes of service disruptions
+- Visualize delay patterns over time
+- Export charts per location and event type
 
-## Running the Application with Docker
+---
 
-Follow the steps below to run the application using the pre-built Docker image.
+## How to Run the Application
 
-### 1. Install Docker Desktop
+You can run the application using Docker, without installing Python or additional libraries.
 
-- Download and install Docker Desktop (tested with version 4.41.2).
-- Once installed, start Docker Desktop and ensure it is running in the background.
+### Step 1: Install Docker
 
-### 2. Download the Repository
+Download and install Docker Desktop from the official website:  
+https://www.docker.com/products/docker-desktop
 
-- Download the repository from GitHub as a ZIP file, or clone it:
+Make sure Docker is running before continuing.
+
+### Step 2: Download the Repository
+
+Download the project as a ZIP file from GitHub and extract it to any location,  
+or clone it directly using Git:
 
 ```
 git clone https://github.com/Mattia-V01/Unplanned_Events_and_Delays_in_Public_Transport.git
 ```
 
-### 3. Run the Application
+### Step 3: Start the Application
 
-To start the app, simply double-click the file:
+Double-click the `run-dashboard.bat` file included in the project to launch the application.  
+Your browser will open automatically at:
 
 ```
-.\Unplanned_Events_and_Delays_in_Public_Transport\UnplannedDockerApp\run-dashboard.bat
+http://localhost:8000
 ```
 
-You can also move this file anywhere on your system (e.g., the desktop) and run it from there.  
+The application runs in a Docker container and does not require any additional setup.
+
+---
+
+## Rebuilding the Docker Image (if necessary)
+
+If needed, you can build the Docker image manually.
+
+1. Open a terminal in the folder containing the Dockerfile.
+2. Run the following command to build the image:
+
 ```
+docker build -f Dockerfile -t ghcr.io/mattia-v01/unplanned-delays-dashboard:latest ..
+```
+
+3. Then start the container with:
+
+```
+docker run --rm -it -p 8000:8000 ghcr.io/mattia-v01/unplanned-delays-dashboard:latest
+```
+
+This may be useful if you have modified the code or if the prebuilt image is unavailable.
