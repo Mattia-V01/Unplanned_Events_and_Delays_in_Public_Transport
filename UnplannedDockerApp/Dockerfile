@@ -1,21 +1,18 @@
+# Use official Python base image
 FROM python:3.11-slim
 
-# Install system dependencies
-RUN apt-get update && \
-    apt-get install -y git && \
-    apt-get clean
-
-# Set working directory
+# Set working directory inside container
 WORKDIR /app
 
-# Clone repository
-RUN git clone https://github.com/Mattia-V01/Unplanned_Events_and_Delays_in_Public_Transport.git
+# Copy all local files to container
+COPY . /app
 
-# Change directory to the cloned repo
-WORKDIR /app/Unplanned_Events_and_Delays_in_Public_Transport
+# Upgrade pip and install required packages
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Expose the port used by FastAPI
+EXPOSE 8000
 
-# Command to run the Shiny app
-CMD ["shiny", "run", "--reload", "App/app.py"]
+# Run the FastAPI app
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
