@@ -16,6 +16,7 @@ matplotlib.use("Agg")
 import numpy as np
 from shiny.ui import tags
 import builtins
+from math import radians, cos, sin, asin, sqrt
 
 # Global reference to background precache thread
 precache_thread = None
@@ -30,7 +31,7 @@ render_lock = threading.Lock()
 
 # Configure basic logging to the console
 logging.basicConfig(
-    level=logging.INFO,  # Set to DEBUG for more detailed output
+    level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
@@ -53,9 +54,9 @@ def server(input, output, session):
     # Reference to the background thread
     precache_thread = None
 
-    # Default map center (Switzerland) and zoom level
+    # Default map center and zoom level
     map_center = reactive.Value([46.8182, 8.2275])
-    map_zoom = reactive.Value(9)
+    map_zoom = reactive.Value(8)
 
     # Mapping AlertCause values to marker icons and colors
     cause_to_icon = {
@@ -77,6 +78,19 @@ def server(input, output, session):
 
     # Cache to avoid recomputing markers
     marker_cache = {}
+
+    @reactive.Effect
+    def update_map_zoom_level():
+        zoom = input.map_zoom_level()
+        if zoom is not None:
+            map_zoom.set(zoom)
+
+    @reactive.Effect
+    def update_map_center():
+        lat = input.map_center_lat()
+        lng = input.map_center_lng()
+        if lat is not None and lng is not None:
+            map_center.set([lat, lng])
 
     # Clear cache when session ends
     @session.on_ended
@@ -225,7 +239,6 @@ def server(input, output, session):
                 else:
                     logger.info("Skipping delay marker cache due to date mismatch")
 
-            # --- Situation Markers as Squares ---
             try:
                 start_seconds = window_index * 900
                 selected_time = datetime.combine(
@@ -239,8 +252,6 @@ def server(input, output, session):
                 logger.info(f"Loading situations for datetime: {selected_time}")
                 situations = load_situations_for_datetime(sqlite_path, csv_mapping_path, selected_time, language="de")
                 logger.info(f"Loaded {len(situations)} situations")
-
-                from folium import Marker, DivIcon
 
                 for _, row in situations.iterrows():
                     lat, lon = row["coords"]
@@ -291,7 +302,7 @@ def server(input, output, session):
             logger.info(f"Generated {len(all_markers)} marker objects in {systime.time() - start_time:.2f} seconds")
             return all_markers
 
-    # Map output (reactive)
+    # Map output
     @output
     @render.ui
     def map():
@@ -305,7 +316,7 @@ def server(input, output, session):
         logger.info(f"Number of layers being added to the map: {len(layers)}")
 
         render_start = systime.time()
-        html = map_base.add_layers_to_base(base, layers, map_center.get(), map_zoom.get())
+        html = map_base.add_layers_to_base(None, layers, map_center.get(), map_zoom.get())
         logger.info(f"Returned UI map HTML in {(systime.time()-render_start):.2f} seconds")
 
         # Return first, then trigger precache
@@ -315,7 +326,7 @@ def server(input, output, session):
         return result
 
 
-    # Display time window label (in German)
+    # Display time window label
     @output
     @render.ui
     def timeline():
@@ -324,7 +335,7 @@ def server(input, output, session):
         end_seconds = start_seconds + 899
         start_time = str(timedelta(seconds=start_seconds)).rjust(8, "0")
         end_time = str(timedelta(seconds=end_seconds)).rjust(8, "0")
-        return ui.tags.div(f"Zeitfenster: {start_time} - {end_time}", style="margin-top: 10px; font-weight: bold;")
+        return ui.tags.div(f"Time Window: {start_time} - {end_time}", style="margin-top: 10px; font-weight: bold;")
 
     # Delay color legend output
     @output
@@ -363,10 +374,6 @@ def server(input, output, session):
     @output
     @render.plot
     def marker_bar_chart():
-        import matplotlib.pyplot as plt
-        from collections import Counter
-        import numpy as np
-
         features_arr = data_cache.get().get("features_arr", [])
         features_dep = data_cache.get().get("features_dep", [])
 
@@ -451,7 +458,7 @@ def server(input, output, session):
         ax.xaxis.grid(True, linestyle='--', alpha=0.5)
         ax.set_axisbelow(True)
 
-        # === Show stddev annotations with percentage coverage ===
+        #Show stddev annotations with percentage coverage
         if true_delays:
             mu = np.mean(true_delays)
             sigma = np.std(true_delays)
@@ -481,7 +488,7 @@ def server(input, output, session):
         except Exception as e:
             logger.warning(f"tight_layout failed: {e}")
 
-    # AlertCause legend (always shown)
+    # AlertCause legend
     @output
     @render.ui
     def alert_legend():
@@ -597,7 +604,7 @@ def server(input, output, session):
         # Define the thread function to precache clusters for all other time windows
         def run_precache(date_from, show_arrivals, show_departures, current_idx, features_arr, features_dep):
             logger.info(f"Entered precache with index={current_idx}")
-            systime.sleep(1)  # Let UI stabilize
+            systime.sleep(1)
 
             for idx in range(1, 97):  # Loop over 96 time windows
                 if idx == current_idx:
@@ -650,8 +657,6 @@ def server(input, output, session):
     @output
     @render.plot
     def selected_point_timeseries():
-        import matplotlib.pyplot as plt
-
         delay_id = input.clicked_delay_id()
         if not delay_id:
             return
@@ -838,7 +843,7 @@ def server(input, output, session):
     def situation_delay_plot_box():
         # Check if a situation marker has been clicked
         if not input.clicked_situation_id():
-            # If not, show nothing (empty HTML)
+            # If not, show nothing
             return ui.HTML("")
 
         # If a situation is selected, render the associated plot
@@ -848,11 +853,6 @@ def server(input, output, session):
     @output
     @render.plot
     def situation_delay_trend():
-        import matplotlib.pyplot as plt
-        from datetime import timedelta, datetime
-        import numpy as np
-        from math import radians, cos, sin, asin, sqrt
-
         logger.info("situation_delay_trend triggered")
 
         # Get clicked situation ID from input

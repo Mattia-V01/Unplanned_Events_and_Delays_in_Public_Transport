@@ -1,32 +1,24 @@
-# Import the Shiny app components
 from shiny import App
 from ui import ui
 from server import server
 from data_logic import load_geojson_for_selection, data_cache
 from datetime import datetime as dt
 import builtins
-
-# Import FastAPI to extend Shiny with custom routes
 from fastapi import FastAPI, Request
 from starlette.responses import HTMLResponse
-
-# For chart rendering
 from matplotlib import pyplot as plt
-import base64
 import io
-
-# For automatic browser launch
 import uvicorn
 import webbrowser
 import threading
 
-# --- Create the core Shiny app ---
+# Create the core Shiny app
 shiny_app = App(ui=ui, server=server)
 
-# --- Create a FastAPI app and mount the Shiny app under root "/"
+# Create a FastAPI app and mount the Shiny app under root "/"
 fastapi_app = FastAPI()
 
-# --- Define a custom route for static charts ---
+# Define a custom route for static charts
 @fastapi_app.get("/static_plot")
 async def static_plot(request: Request):
     delay_id = request.query_params.get("delay_id", "")
@@ -134,7 +126,7 @@ async def static_plot(request: Request):
 
     return HTMLResponse(html)
 
-# --- Auto-launch the app in a browser after a short delay ---
+# Auto-launch the app in a browser after a short delay
 if __name__ == "__main__":
     def open_browser():
         webbrowser.open_new("http://127.0.0.1:8000")
@@ -144,7 +136,7 @@ if __name__ == "__main__":
 
     # Start Uvicorn server, binding to all interfaces, and enable live reload
     uvicorn.run(
-        "app:fastapi_app",   # Use the FastAPI app (which includes Shiny)
+        "app:fastapi_app",   # Use the FastAPI app
         host="0.0.0.0",
         port=8000,
         reload=True
