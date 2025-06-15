@@ -104,7 +104,7 @@ def server(input, output, session):
             base_map.set(map_base.render_base_map())
         return base_map.get()
 
-    # Load delay data when "Daten laden" button is clicked
+    # Load delay data button is clicked
     @reactive.Effect
     @reactive.event(input.load_data)
     def _():
@@ -113,7 +113,7 @@ def server(input, output, session):
 
         # Get the selected date from UI input
         selected_date = input.selected_date()
-        logger.info(f"'Daten laden' triggered for date: {selected_date}")
+        logger.info(f"'Load Data' triggered for date: {selected_date}")
 
         # Load geojson features from file
         features = load_geojson_for_selection(selected_date, selected_date, True, True)
