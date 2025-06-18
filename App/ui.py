@@ -106,7 +106,7 @@ ui = ui.TagList(
                     top: 110px;
                     left: 0;
                     width: 19vw;
-                    min-width: 240px;
+                    min-width: 50px;
                     max-width: 320px;
                     height: calc(100vh - 110px);
                     overflow-y: auto;
