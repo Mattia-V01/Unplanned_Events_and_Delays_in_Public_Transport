@@ -55,7 +55,7 @@ def server(input, output, session):
     precache_thread = None
 
     # Default map center and zoom level
-    map_center = reactive.Value([46.8182, 8.2275])
+    map_center = reactive.Value([46.5182, 8.2275])
     map_zoom = reactive.Value(8)
 
     # Mapping AlertCause values to marker icons and colors
