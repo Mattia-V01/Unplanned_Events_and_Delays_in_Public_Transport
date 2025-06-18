@@ -63,3 +63,14 @@ docker run --rm -it -p 8000:8000 ghcr.io/mattia-v01/unplanned-delays-dashboard:l
 ```
 
 This may be useful if you have modified the code or if the prebuilt image is unavailable.
+
+## Running Without Docker
+
+If you prefer to run the app without Docker, make sure to manually adjust the relative paths in the source files:  
+change all occurrences of `../Data/...` and `../DB/...` to `./Data/...` and `./DB/...` respectively.
+
+After setting up a Python environment and installing the required dependencies, you can start the app locally with:
+
+```
+python app.py
+```
