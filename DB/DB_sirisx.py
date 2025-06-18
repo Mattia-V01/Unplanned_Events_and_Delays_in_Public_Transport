@@ -8,7 +8,7 @@ from datetime import datetime
 
 # API Configuration
 URL = "https://api.opentransportdata.swiss/la/siri-sx"
-KEY = "eyJvcmciOiI2NDA2NTFhNTIyZmEwNTAwMDEyOWJiZTEiLCJpZCI6IjNiZTRjOTQyOWE3MzQ3YzhhMTU5Y2EzN2E5ODhjMDdjIiwiaCI6Im11cm11cjEyOCJ9"
+KEY = "YOUR KEY"
 
 # Database path
 DB_PATH = "c:/Tesi/Daten/data/situations_sirisx.sqlite"
