@@ -20,22 +20,7 @@ def render_base_map():
         max_zoom=16
     ).add_to(m)
 
-    # Style only (no controls or sliders)
-    m.get_root().html.add_child(folium.Element("""
-        <style>
-            html, body {
-                margin: 0;
-                padding: 0;
-                overflow: hidden;
-            }
-
-            .folium-map {
-                width: 100%;
-                display: block;
-                border: none;
-            }
-        </style>
-    """))
+    
 
     return m
 
@@ -63,23 +48,7 @@ def add_layers_to_base(base_map, layers, center, zoom):
 
     folium.LayerControl().add_to(m)
 
-    # Inject only styling
-    m.get_root().html.add_child(folium.Element("""
-        <style>
-            html, body {
-                margin: 0;
-                padding: 0;
-                height: 90%;
-                overflow: hidden;
-            }
-
-            .folium-map {
-                width: 100%;
-                display: block;
-                border: none;
-            }
-        </style>
-    """))
+    
 
     # Add JavaScript to pass map events back to Shiny
     m.get_root().html.add_child(folium.Element("""

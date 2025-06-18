@@ -101,7 +101,6 @@ ui = ui.TagList(
                     ui.output_ui("situation_info_panel"),
                     style="text-align: left;"
                 ),
-                # Restored proper sizing and scroll behavior
                 style="""
                     position: fixed;
                     top: 110px;
@@ -121,41 +120,37 @@ ui = ui.TagList(
                 """
             ),
 
-            # Main content area: map, slider and timeline (final version)
+            # Main content area: map, slider and timeline
             ui.div(
-                # Wrapper for the map
                 ui.div(
                     ui.output_ui("map"),
                     style="""
-                        flex-grow: 1;
-                        min-height: 0;
-                        position: relative;
-                        z-index: 0;
+                    flex: 1 1 auto;       
+                    min-height: 0;
+                    overflow: hidden;     
                     """
                 ),
-                # Timeline and slider (fixed height)
                 ui.div(
-                    ui.input_slider("time_window", "", min=1, max=96, value=1, step=1, width="100%"),
+                    ui.input_slider(
+                    "time_window", "Time Window",
+                    min=1, max=96, value=1, step=1, width="100%"
+                    ),
                     ui.output_ui("timeline"),
                     style="""
-                        flex-shrink: 0;
-                        min-height: 100px;
-                        max-height: 120px;
-                        padding-top: 10px;
-                        z-index: 1;
+                    flex: 0 0 auto;
+                    padding: 8px 16px;
+                    background: white;
+                    border-top: 1px solid #ddd;
                     """
                 ),
                 style="""
-                    margin-left: 19vw;
                     display: flex;
                     flex-direction: column;
-                    height: calc(100vh - 160px);  /* Total height minus header */
-                    overflow: hidden;
+                    margin-left: 19vw; 
+                    height: calc(100vh - 160px);
                     box-sizing: border-box;
-                    font-family: 'Segoe UI', sans-serif;
-                    font-size: 14px;
                 """
-            )
+                )
         ),
 
         # Global style tweaks
@@ -164,14 +159,7 @@ ui = ui.TagList(
                 padding-top: 0 !important;
             }
 
-            body, html {
-                font-family: 'Segoe UI', sans-serif;
-                font-size: 15px;
-                color: #222;
-                background-color: #fafafa;
-                margin: 0;
-                height: 100%;
-            }
+            
 
             label {
                 font-weight: 500;
