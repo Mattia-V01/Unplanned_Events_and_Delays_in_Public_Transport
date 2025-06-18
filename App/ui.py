@@ -56,26 +56,18 @@ ui = ui.TagList(
         # Right sidebar (toggleable panel)
         ui.sidebar(
             ui.div(
-                ui.output_plot("marker_bar_chart", fill=True),
-                style="""
-                    width: 100%;
-                    padding: 12px 16px;
-                    box-sizing: border-box;
-                """
+                ui.output_plot("marker_bar_chart", height="600px", fill=False),
+                style="margin-top: 15px; width: 100%; text-align: right;"
             ),
             ui.div(
                 ui.output_ui("selected_point_plot_box"),
                 ui.output_ui("plot_ready_flag"),
                 ui.output_ui("situation_delay_plot_box"),
-                style="""
-                    width: 100%;
-                    padding: 12px 16px;
-                    box-sizing: border-box;
-                """
+                style="width: 100%;"
             ),
             position="right",
             open="closed",
-            width="35%"
+            width="35%",
         ),
 
         # Main container with left sidebar and main map/timeline content

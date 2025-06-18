@@ -811,7 +811,7 @@ def server(input, output, session):
                         "data-delay-id": delay_id,
                         "data-date": str(selected_date),
                         "style": """
-                            position: relative;
+                            position: absolute;
                             top: 8px;
                             right: 10px;
                             font-size: 16px;
@@ -825,7 +825,7 @@ def server(input, output, session):
                 ),
                 style="position: relative; height: 0;"
             ),
-            ui.output_plot("selected_point_timeseries", fill=False),
+            ui.output_plot("selected_point_timeseries", height="600px", fill=False),
             style="position: relative;"
         )
 
